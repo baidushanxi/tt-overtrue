@@ -1,0 +1,30 @@
+{
+    "name": "sywzj/tt-overtrue",
+    "description": "今日头条 open api",
+    "keywords": ["今日头条", "open", "api"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "wangzhongjie",
+            "email": "wangzhongjie@shiyuegame.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "guzzlehttp/guzzle": "~6.1",
+        "doctrine/cache": "~1.6",
+        "doctrine/collections": "~1.3",
+        "symfony/serializer": "~3.4|~4.0",
+        "symfony/options-resolver": "~3.4|~4.0",
+        "symfony/property-access": "~3.4|~4.0",
+        "symfony/http-foundation": "~3.4|~4.0"
+    },
+    "require-dev": {
+        "monolog/monolog": "~1.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sywzj\\TTOvertrue\\": "./src"
+        }
+    }
+}
