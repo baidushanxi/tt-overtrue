@@ -2,16 +2,27 @@
 
 namespace Sywzj\TTOvertrue\Bridge;
 
-use GuzzleHttp\Client;
-use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Doctrine\Common\Collections\ArrayCollection;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\MessageFormatter;
+use GuzzleHttp\Middleware;
+use Sywzj\TTOvertrue\AccessToken\AccessToken;
 
 class Http
 {
     /**
      * Request Url.
      */
-    protected $uri;
+//    protected $uri = "https://ad.toutiao.com/open_api";
+
+    protected $uri = "https://test-ad.toutiao.com/open_api";
+
+
+    /**
+     * Request $instance.
+     */
+    protected static $instance;
 
     /**
      * Request Method.
@@ -19,9 +30,9 @@ class Http
     protected $method;
 
     /**
-     * Request Body.
+     * Request json.
      */
-    protected $body;
+    protected $json;
 
     /**
      * Request Query.
@@ -29,31 +40,50 @@ class Http
     protected $query = [];
 
     /**
+     * Request Headers.
+     */
+    protected $headers = [];
+
+    /**
      * Query With AccessToken.
      */
     protected $accessToken;
 
     /**
-     * SSL 证书.
-     */
-    protected $sslCert;
-    protected $sslKey;
-
-    /**
      * initialize.
      */
-    public function __construct($method, $uri)
+    public function __construct(string $method = 'GET' ,string $uri,array $json = [])
     {
-        $this->uri = $uri;
-        $this->method = strtoupper($method);
+        $this->uri = $this->uri . $uri;
+        $this->method = $method;
+        $this->json = $json;
+    }
+
+    /**
+     * 静态工厂方法，返还此类的唯一实例
+     */
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new Client();
+        }
+        return self::$instance;
     }
 
     /**
      * Create Client Factory.
      */
-    public static function request($method, $uri)
+    public static function httpPostJson($uri, array $options = [])
     {
-        return new static($method, $uri);
+        return new static('POST', $uri, $options);
+    }
+
+    /**
+     * Create Client Factory.
+     */
+    public static function httpGetJson($uri, array $options = [])
+    {
+        return new static('GET',$uri, $options);
     }
 
     /**
@@ -67,42 +97,11 @@ class Http
     }
 
     /**
-     * Request Json Body.
-     */
-    public function withBody(array $body)
-    {
-        $this->body = Serializer::jsonEncode($body);
-
-        return $this;
-    }
-
-    /**
-     * Request Xml Body.
-     */
-    public function withXmlBody(array $body)
-    {
-        $this->body = Serializer::xmlEncode($body);
-
-        return $this;
-    }
-
-    /**
      * Query With AccessToken.
      */
     public function withAccessToken(AccessToken $accessToken)
     {
-        $this->query['access_token'] = $accessToken->getTokenString();
-
-        return $this;
-    }
-
-    /**
-     * Request SSL Cert.
-     */
-    public function withSSLCert($sslCert, $sslKey)
-    {
-        $this->sslCert = $sslCert;
-        $this->sslKey = $sslKey;
+        $this->headers = ['Access-Token' => $accessToken->getTokenString()];
 
         return $this;
     }
@@ -119,18 +118,19 @@ class Http
             $options['query'] = $this->query;
         }
 
-        // body
-        if (!empty($this->body)) {
-            $options['body'] = $this->body;
+        // json
+        if (!empty($this->json)) {
+            $options['json'] = $this->json;
         }
 
-        // ssl cert
-        if ($this->sslCert && $this->sslKey) {
-            $options['cert'] = $this->sslCert;
-            $options['ssl_key'] = $this->sslKey;
+        // json
+        if (!empty($this->json)) {
+            $options['headers'] = $this->headers;
         }
 
-        $response = (new Client())->request($this->method, $this->uri, $options);
+        $client = self::getInstance();
+        $response = $client->request($this->method, $this->uri, $options);
+//        $http_code = $response->getStatusCode();
         $contents = $response->getBody()->getContents();
 
         if (!$asArray) {

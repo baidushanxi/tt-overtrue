@@ -21,6 +21,7 @@ class AccessToken extends ArrayCollection
 
     const ACCESS_TOKEN = 'https://ad.toutiao.com/open_api/oauth2/access_token/';
 
+
     /**
      * 构造方法.
      */
@@ -35,10 +36,9 @@ class AccessToken extends ArrayCollection
      */
     public function getTokenString()
     {
+        return "ed56509486d5f3a6e7435149aceb978b9d368118";
         $cacheId = $this->getCacheId();
 
-
-        dd($cacheId);
         if ($this->cache && $data = $this->cache->fetch($cacheId)) {
             return $data['access_token'];
         }
