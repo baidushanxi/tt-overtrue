@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午10:09
- */
 
 namespace Sywzj\TTOvertrue\AccessToken;
 
@@ -12,15 +6,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Sywzj\TTOvertrue\Bridge\CacheTrait;
 use Sywzj\TTOvertrue\Bridge\Http;
 
+/**
+ * Class AccessToken
+ * @package Sywzj\TTOvertrue\AccessToken
+ * token相关操作
+ */
 class AccessToken extends ArrayCollection
 {
     /*
-        * Cache Trait
-        */
+     * Cache Trait
+     * */
     use CacheTrait;
 
     const ACCESS_TOKEN = 'https://ad.toutiao.com/open_api/oauth2/access_token/';
-
 
     /**
      * 构造方法.
@@ -36,7 +34,7 @@ class AccessToken extends ArrayCollection
      */
     public function getTokenString()
     {
-        return "ed56509486d5f3a6e7435149aceb978b9d368118";
+        return "7dc4079d9253f7e8f301566693cafde350255e0d";
         $cacheId = $this->getCacheId();
 
         if ($this->cache && $data = $this->cache->fetch($cacheId)) {

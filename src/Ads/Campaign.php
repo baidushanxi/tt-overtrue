@@ -1,17 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午11:31
- */
-
 namespace Sywzj\TTOvertrue\Ads;
 
 use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 use Sywzj\TTOvertrue\Bridge\Http;
 
+/**
+ * Class Campaign
+ * @package Sywzj\TTOvertrue\Ads
+ * 广告组相关
+ */
 class Campaign
 {
     protected $access_token;
@@ -48,7 +46,6 @@ class Campaign
         return $response;
     }
 
-
     /**
      * 修改广告组信息
      * @param $item
@@ -80,7 +77,6 @@ class Campaign
         return $response;
     }
 
-
     /**
      * 获取广告组信息
      * @param $item
@@ -92,7 +88,10 @@ class Campaign
         $item['page'] = empty($item['page']) ? 1 : $item['page'];
         $item['page_size'] = empty($item['page_size']) ? 100 : $item['page_size'];
 
-        $item['filtering'] = !empty($item['filtering']) ? json_encode($item['filtering']) : [];
+        if (!empty($item['filtering'])){
+            $item['filtering'] = json_encode($item['filtering']);
+        }
+
         $item['fields'] = empty($item['fields']) ? ["id", "name", "budget", "budget_mode", "landing_type", "status", "modify_time"] : $item['fields'];
 
         $response = Http::httpGetJson(static::GET_URL, $item)
@@ -104,7 +103,6 @@ class Campaign
         }
         return $response;
     }
-
 
     /**
      * 更新广告组信息

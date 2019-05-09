@@ -1,16 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午11:31
- */
 
 namespace Sywzj\TTOvertrue\Ads;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 
+/**
+ * Class Creative
+ * @package Sywzj\TTOvertrue\Ads
+ * 广告创意相关
+ */
 class Creative extends ArrayCollection
 {
     protected $access_token;
@@ -34,7 +33,7 @@ class Creative extends ArrayCollection
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function create(array $item = [])
+    public function createCreative(array $item = [])
     {
         $response = Http::httpPostJson(static::CREATE_URL, $item)
             ->withAccessToken($this->access_token)
@@ -47,14 +46,13 @@ class Creative extends ArrayCollection
         return $response;
     }
 
-
     /**
      * 修改广告创意信息
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function update($item)
+    public function updateCreative($item)
     {
         $response = Http::httpPostJson(static::UPDATE_URL, $item)
             ->withAccessToken($this->access_token)
@@ -66,22 +64,25 @@ class Creative extends ArrayCollection
         return $response;
     }
 
-
     /**
      * 获取广告创意信息
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function get(array $item)
+    public function getCreative(array $item)
     {
         $item['page'] = empty($item['page']) ? 1 : $item['page'];
         $item['page_size'] = empty($item['page_size']) ? 100 : $item['page_size'];
-        $item['filtering'] = !empty($item['filtering']) ? json_encode($item['filtering']) : [];
+
+        if (!empty($item['filtering'])) {
+            $item['filtering'] = json_encode($item['filtering']);
+        }
+
         $item['fields'] =
             empty($item['fields'])
-            ? ["creative_id", "ad_id", "advertiser_id", "status","opt_status", "image_mode", "title", "creative_word_ids","third_party_id", "image_ids", "image_id", "video_id","audit_reject_reason", "materials"]
-            : $item['fields'];
+                ? ["creative_id", "ad_id", "advertiser_id", "status", "opt_status", "image_mode", "title", "creative_word_ids", "third_party_id", "image_ids", "image_id", "video_id", "audit_reject_reason", "materials"]
+                : $item['fields'];
 
         $response = Http::httpGetJson(static::GET_URL, $item)
             ->withAccessToken($this->access_token)
@@ -99,7 +100,7 @@ class Creative extends ArrayCollection
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function status(array $item)
+    public function statusCreative(array $item)
     {
         $response = Http::httpPostJson(static::STATUS_URL, $item)
             ->withAccessToken($this->access_token)
@@ -110,7 +111,5 @@ class Creative extends ArrayCollection
         }
         return $response;
     }
-  
-
 
 }

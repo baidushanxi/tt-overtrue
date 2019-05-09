@@ -52,7 +52,7 @@ class Http
     /**
      * initialize.
      */
-    public function __construct(string $method = 'GET' ,string $uri,array $json = [])
+    public function __construct(string $method = 'GET', string $uri, array $json = [])
     {
         $this->uri = $this->uri . $uri;
         $this->method = $method;
@@ -83,7 +83,7 @@ class Http
      */
     public static function httpGetJson($uri, array $options = [])
     {
-        return new static('GET',$uri, $options);
+        return new static('GET', $uri, $options);
     }
 
     /**
@@ -130,7 +130,7 @@ class Http
 
         $client = self::getInstance();
         $response = $client->request($this->method, $this->uri, $options);
-//        $http_code = $response->getStatusCode();
+        //$http_code = $response->getStatusCode();
         $contents = $response->getBody()->getContents();
 
         if (!$asArray) {

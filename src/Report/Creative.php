@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午11:35
- */
 
 namespace Sywzj\TTOvertrue\Report;
 
@@ -14,6 +8,11 @@ use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 use Sywzj\TTOvertrue\Bridge\Http;
 
+/**
+ * Class Creative
+ * @package Sywzj\TTOvertrue\Report
+ * 广告创意报表
+ */
 class Creative extends ArrayCollection
 {
     protected $access_token;
@@ -21,11 +20,11 @@ class Creative extends ArrayCollection
     protected $group_field = [];
     protected $time_granularity = '';
 
-    const REPORT_URL = '/2/report/ad/get/';
+    const REPORT_URL = '/2/report/creative/get/';//广告创意报表
 
     protected $required = ['advertiser_id'];
 
-    protected $group_by = ["STAT_GROUP_BY_FIELD_ID", "STAT_GROUP_BY_FIELD_STAT_TIME", "STAT_GROUP_BY_INVENTORY"];
+    protected $group_by = ["STAT_GROUP_BY_FIELD_STAT_TIME", "STAT_GROUP_BY_FIELD_ID", "STAT_GROUP_BY_INVENTORY"];
 
     protected $time_granularitys = ["STAT_TIME_GRANULARITY_DAILY", "STAT_TIME_GRANULARITY_HOURLY"];
 
@@ -38,7 +37,7 @@ class Creative extends ArrayCollection
     }
 
     /**
-     * 获取广告组报表信息
+     * 获取广告创意报表信息
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
@@ -57,7 +56,6 @@ class Creative extends ArrayCollection
         return $response;
     }
 
-
     /**
      * 获取向头条请求的参数
      * @return array
@@ -66,7 +64,6 @@ class Creative extends ArrayCollection
     {
         return $this->resolveOptions();
     }
-
 
     /**
      * 设置按哪个字段group by
@@ -78,7 +75,6 @@ class Creative extends ArrayCollection
         $this->group_fields = $group_fields;
         return $this;
     }
-
 
     /**
      * 设置时间粒度
@@ -122,7 +118,6 @@ class Creative extends ArrayCollection
         } else {
             unset($options['filtering']);
         }
-
         return $options;
     }
 }

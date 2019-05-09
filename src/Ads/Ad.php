@@ -1,16 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午11:31
- */
 
 namespace Sywzj\TTOvertrue\Ads;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
+use Sywzj\TTOvertrue\Bridge\Http;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Sywzj\TTOvertrue\AccessToken\AccessToken;
 
+/**
+ * Class Ad
+ * @package Sywzj\TTOvertrue\Ads
+ * 广告计划相关
+ */
 class Ad extends ArrayCollection
 {
     protected $access_token;
@@ -19,6 +21,8 @@ class Ad extends ArrayCollection
     const CREATE_URL = '/2/ad/create/';
     const UPDATE_URL = '/2/ad/update/';
     const STATUS_URL = '/2/ad/update/status/';
+    const BUDGET_URL = '/2/ad/update/budget/';
+    const BID_URL = '/2/ad/update/bid/';
 
     /**
      * 构造方法.
@@ -34,7 +38,7 @@ class Ad extends ArrayCollection
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function create(array $item = [])
+    public function createPlan(array $item = [])
     {
         $response = Http::httpPostJson(static::CREATE_URL, $item)
             ->withAccessToken($this->access_token)
@@ -47,14 +51,13 @@ class Ad extends ArrayCollection
         return $response;
     }
 
-
     /**
      * 修改广告计划信息
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function update($item)
+    public function updatePlan($item)
     {
         if (empty($item['modify_time'])) {
             $data = $this->get([
@@ -79,24 +82,25 @@ class Ad extends ArrayCollection
         return $response;
     }
 
-
     /**
      * 获取广告计划信息
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function get(array $item)
+    public function getPlan(array $item)
     {
         $item['page'] = empty($item['page']) ? 1 : $item['page'];
         $item['page_size'] = empty($item['page_size']) ? 100 : $item['page_size'];
 
-        $item['filtering'] = !empty($item['filtering']) ? json_encode($item['filtering']) : [];
+        if (!empty($item['filtering'])) {
+            $item['filtering'] = json_encode($item['filtering']);
+        }
+
         $item['fields'] =
             empty($item['fields'])
-                ? ["id", "name", "budget", "budget_mode", "status", "opt_status","open_url", "modify_time", "start_time", "end_time", "bid","advertiser_id", "pricing", "flow_control_mode", "download_url","inventory_type", "schedule_type", "app_type", "cpa_bid","cpa_skip_first_phrase", "audience", "external_url", "package","campaign_id", "ad_modify_time", "ad_create_time","audit_reject_reason", "retargeting_type", "retargeting_tags","convert_id", "interest_tags", "hide_if_converted"]
+                ? ["id", "name", "budget", "budget_mode", "status", "opt_status", "open_url", "modify_time", "start_time", "end_time", "bid", "advertiser_id", "pricing", "flow_control_mode", "download_url", "inventory_type", "schedule_type", "app_type", "cpa_bid", "cpa_skip_first_phrase", "audience", "external_url", "package", "campaign_id", "ad_modify_time", "ad_create_time", 'audit_reject_reason', 'convert_id', 'hide_if_converted']
                 : $item['fields'];
-
         $response = Http::httpGetJson(static::GET_URL, $item)
             ->withAccessToken($this->access_token)
             ->send();
@@ -108,12 +112,12 @@ class Ad extends ArrayCollection
     }
 
     /**
-     * 更新广告计划信息
+     * 更新广告计划状态
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
      */
-    public function status(array $item)
+    public function statusPlan(array $item)
     {
         $response = Http::httpPostJson(static::STATUS_URL, $item)
             ->withAccessToken($this->access_token)
@@ -125,7 +129,40 @@ class Ad extends ArrayCollection
         return $response;
     }
 
+    /**
+     * 更新广告计划预算
+     * @param $item
+     * @return \Doctrine\Common\Collections\ArrayCollection|string
+     * @throws \Exception
+     */
+    public function budgetPlan(array $item)
+    {
+        $response = Http::httpPostJson(static::BUDGET_URL, $item)
+            ->withAccessToken($this->access_token)
+            ->send();
 
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+        return $response;
+    }
 
+    /**
+     * 更新广告计划出价
+     * @param $item
+     * @return \Doctrine\Common\Collections\ArrayCollection|string
+     * @throws \Exception
+     */
+    public function bidPlan(array $item)
+    {
+        $response = Http::httpPostJson(static::BID_URL, $item)
+            ->withAccessToken($this->access_token)
+            ->send();
+
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+        return $response;
+    }
 
 }

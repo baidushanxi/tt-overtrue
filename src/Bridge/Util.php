@@ -9,7 +9,7 @@ class Util
      */
     public static function getTimestamp()
     {
-        return (string) time();
+        return (string)time();
     }
 
     /**
@@ -20,7 +20,7 @@ class Util
         $protocol = (isset($_SERVER['HTTPS']) && ('off' !== $_SERVER['HTTPS'] || 443 == $_SERVER['SERVER_PORT']))
             ? 'https://' : 'http://';
 
-        return $protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
 
     /**

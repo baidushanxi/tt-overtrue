@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午11:35
- */
 
 namespace Sywzj\TTOvertrue\Report;
 
@@ -14,6 +8,11 @@ use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Sywzj\TTOvertrue\Bridge\Http;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 
+/**
+ * Class Ad
+ * @package Sywzj\TTOvertrue\Report
+ * 广告计划报表
+ */
 class Ad extends ArrayCollection
 {
     protected $access_token;
@@ -21,7 +20,7 @@ class Ad extends ArrayCollection
     protected $group_field = [];
     protected $time_granularity = '';
 
-    const REPORT_URL = '/2/report/ad/get/';
+    const REPORT_URL = '/2/report/ad/get/';//广告计划报表
 
     protected $required = ['advertiser_id'];
 
@@ -38,7 +37,7 @@ class Ad extends ArrayCollection
     }
 
     /**
-     * 获取广告组报表信息
+     * 获取广告计划报表信息
      * @param $item
      * @return \Doctrine\Common\Collections\ArrayCollection|string
      * @throws \Exception
@@ -57,7 +56,6 @@ class Ad extends ArrayCollection
         return $response;
     }
 
-
     /**
      * 获取向头条请求的参数
      * @return array
@@ -66,7 +64,6 @@ class Ad extends ArrayCollection
     {
         return $this->resolveOptions();
     }
-
 
     /**
      * 设置按哪个字段group by
@@ -78,7 +75,6 @@ class Ad extends ArrayCollection
         $this->group_fields = $group_fields;
         return $this;
     }
-
 
     /**
      * 设置时间粒度
