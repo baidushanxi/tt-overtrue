@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wangzhongjie  Email: baidushanxi@vip.qq.com
- * Date: 2019/4/30
- * Time: 上午10:09
- */
 
 namespace Sywzj\TTOvertrue\AccessToken;
 
@@ -12,15 +6,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Sywzj\TTOvertrue\Bridge\CacheTrait;
 use Sywzj\TTOvertrue\Bridge\Http;
 
+/**
+ * Class AccessToken
+ * @package Sywzj\TTOvertrue\AccessToken
+ * token相关操作
+ */
 class AccessToken extends ArrayCollection
 {
     /*
-        * Cache Trait
-        */
+     * Cache Trait
+     * */
     use CacheTrait;
 
-    const ACCESS_TOKEN = 'https://ad.toutiao.com/open_api/oauth2/access_token/';
+    public $access_token = '';
 
+    const ACCESS_TOKEN = '/oauth2/access_token/';
+    const REFRESH_TOKEN = '/oauth2/refresh_token/';
 
     /**
      * 构造方法.
@@ -36,43 +37,64 @@ class AccessToken extends ArrayCollection
      */
     public function getTokenString()
     {
-        return "ed56509486d5f3a6e7435149aceb978b9d368118";
-        $cacheId = $this->getCacheId();
-
-        if ($this->cache && $data = $this->cache->fetch($cacheId)) {
-            return $data['access_token'];
-        }
-
-        $response = $this->getTokenResponse();
-
-        if ($this->cache) {
-            $this->cache->save($cacheId, $response, $response['expires_in']);
-        }
-
-        return $response['access_token'];
+        return $this->access_token
+            ?: ($this->getOauthInfo()['access_token'] ?? '');
     }
+
 
     /**
      * 获取 AccessToken（不缓存，返回原始数据）.
      */
-    public function getTokenResponse()
+    public function refreshTokenResponse()
     {
         $query = [
-            'grant_type' => 'auth_code',
+            'grant_type' => 'refresh_token',
             'appid' => $this['app_id'],
             'secret' => $this['secret'],
+            'refresh_token' => $this['refresh_token'],
         ];
 
-        $response = Http::request('POST', static::ACCESS_TOKEN)
-            ->withQuery($query)
+        $response = Http::httpPostJson(static::REFRESH_TOKEN, $query)
             ->send();
 
         if ($response->containsKey('errcode')) {
             throw new \Exception($response['errmsg'], $response['errcode']);
         }
 
+        return $response['data'];
+    }
+
+
+    /***
+     * 获取Oauth认证所需信息
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getOauthInfo()
+    {
+        $cacheId = $this->getCacheId();
+        if ($this->cache && $data = $this->cache->fetch($cacheId)) {
+            return $data;
+        }
+
+        $response = $this->refreshTokenResponse();
+
+        if ($this->cache) {
+            $this->cache->save($cacheId, $response, $response['expires_in']);
+        }
+
         return $response;
     }
+
+    /**
+     * 手动设置Token
+     * @param $token
+     */
+    public function setToken($token)
+    {
+        $this->access_token = $token;
+    }
+
 
     /**
      * 从缓存中清除.
@@ -89,6 +111,6 @@ class AccessToken extends ArrayCollection
      */
     public function getCacheId()
     {
-        return sprintf('%s_access_token', $this['appid']);
+        return sprintf('%s_access_token', $this['app_id']);
     }
 }

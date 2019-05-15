@@ -69,10 +69,10 @@ class Serializer
         } elseif (static::isXML($string)) {
             $result = static::xmlDecode($string);
         } else {
-            throw new \InvalidArgumentException(sprintf('Unable to parse: %s', (string) $string));
+            throw new \InvalidArgumentException(sprintf('Unable to parse: %s', (string)$string));
         }
 
-        return (array) $result;
+        return (array)$result;
     }
 
     /**
