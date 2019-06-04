@@ -90,6 +90,7 @@ class Ad extends ArrayCollection
      */
     public function getPlan(array $item)
     {
+
         $item['page'] = empty($item['page']) ? 1 : $item['page'];
         $item['page_size'] = empty($item['page_size']) ? 100 : $item['page_size'];
 
@@ -113,6 +114,32 @@ class Ad extends ArrayCollection
         return $response;
     }
 
+
+    /**
+     * 获取所有的报表信息
+     * @return array
+     * @throws \Exception
+     */
+    public function getAllAd($params)
+    {
+        $data = $this->getPlan($params)->get('data');
+        $res = $data['list'];
+        if($data['page_info']['total_page'] == 1) return $res;
+        for($i = 2; $i <= $data['page_info']['total_page'];$i++) {
+            try{
+                $params['page'] = $i;
+                $data = $this->getPlan($params)->get('data');
+                $res = array_merge($res, $data['list']);
+            }catch (\Exception $e) {
+                return array_merge($res, []);
+            }
+        }
+        return $res;
+    }
+
+
+
+
     /**
      * 更新广告计划状态
      * @param $item
@@ -124,6 +151,7 @@ class Ad extends ArrayCollection
         $response = Http::httpPostJson(static::STATUS_URL, $item)
             ->withAccessToken($this->access_token)
             ->send();
+
 
         if (0 != $response['code']) {
             throw new ErrorException($response['message'], $response['code']);

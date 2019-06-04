@@ -56,6 +56,31 @@ class Ad extends ArrayCollection
         return $response;
     }
 
+
+    /**
+     * 获取所有的报表信息
+     * @return array
+     * @throws \Exception
+     */
+    public function allReport()
+    {
+        $report = $this->report()->get('data');
+        $res = $report['list'];
+        if($report['page_info']['total_page'] == 1) return $res;
+        for($i = 2; $i <= $report['page_info']['total_page'];$i++) {
+            try{
+                $this->set('page',$i);
+                $report = $this->report()->get('data');
+                $res = array_merge($res, $report['list']);
+            }catch (\Exception $e) {
+                return array_merge($res, []);
+            }
+        }
+        return $res;
+    }
+
+
+
     /**
      * 获取向头条请求的参数
      * @return array
