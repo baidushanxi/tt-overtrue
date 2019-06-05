@@ -138,7 +138,7 @@ class Http
             return $contents;
         }
 
-        $array = Serializer::parse($contents);
+        $array = json_decode($contents,true);
 
         return new ArrayCollection($array);
     }

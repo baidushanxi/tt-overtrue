@@ -4,6 +4,7 @@ namespace Sywzj\TTOvertrue\AccessToken;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Sywzj\TTOvertrue\Bridge\CacheTrait;
+use Sywzj\TTOvertrue\Bridge\ErrorException;
 use Sywzj\TTOvertrue\Bridge\Http;
 
 /**
@@ -20,70 +21,136 @@ class AccessToken extends ArrayCollection
 
     public $access_token = '';
 
+    public $cache_prefix = 'jrtt';
+
     const ACCESS_TOKEN = '/oauth2/access_token/';
     const REFRESH_TOKEN = '/oauth2/refresh_token/';
 
     /**
      * 构造方法.
      */
-    public function __construct($app_id, $secret)
+    public function __construct($app_id, $secret, $auth_code = '')
     {
         $this->set('app_id', $app_id);
         $this->set('secret', $secret);
+        $this->set('auth_code', $auth_code);
     }
 
     /**
-     * 获取 AccessToken（调用缓存，返回 String）.
+     * 获取Token,过期刷新Token
+     * @param bool $refresh
+     * @return array
+     * @throws ErrorException
      */
-    public function getTokenString()
+    public function getTokenString(bool $refresh = false): string
     {
-        return $this->access_token
-            ?: ($this->getOauthInfo()['access_token'] ?? '');
+        if($this->access_token) return $this->access_token;
+
+        $cacheKey = $this->getCacheKey();
+        $cache = $this->getCache();
+
+        if (!$refresh && $cache->has($cacheKey)) {
+            $res = $cache->get($cacheKey);
+            if($res['expires_time'] >= time()) {
+                return $res['access_token'];
+            }
+        }
+        $token = $this->refreshTokenResponse();
+        return $token['access_token'];
+    }
+
+    /**
+     * 授权认证
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function oauth()
+    {
+        $query = [
+            'grant_type' => 'auth_code',
+            'app_id' => $this['app_id'],
+            'secret' => $this['secret'],
+            'auth_code' => $this['auth_code'],
+        ];
+
+        $response = Http::httpPostJson(static::ACCESS_TOKEN, $query)
+            ->send();
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+
+        $token = $response['data'];
+
+        $this->setTokenCache($token['access_token'], $token['refresh_token'], time() + $token['expires_in']);
+        return $token;
     }
 
 
     /**
-     * 获取 AccessToken（不缓存，返回原始数据）.
+     * 缓存Token
+     * @param string $token
+     * @param string $refresh_token
+     * @param int    $lifetime
+     *
+     * @return \EasyWeChat\Kernel\Contracts\AccessTokenInterface
+     *
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    public function setTokenCache(string $token, string $refresh_token, int $expires_time)
+    {
+        $this->getCache()->set($this->getCacheKey(), [
+            'access_token' => $token,
+            'refresh_token' => $refresh_token,
+            'expires_time' => $expires_time,
+        ]);
+
+        return $this;
+    }
+
+
+    /**
+     * 设置缓存的Key
+     * @return string
+     */
+    protected function getCacheKey()
+    {
+        return sprintf('%s_%s_access_token', $this->cache_prefix, $this['app_id']);
+    }
+
+
+    /**
+     * 刷新Token
      */
     public function refreshTokenResponse()
     {
+        $cacheKey = $this->getCacheKey();
+        $cache = $this->getCache();
+
+        if (!$cache->has($cacheKey)) {
+            throw new ErrorException('please oauth account first', 500);
+        }
+
+        $token_cache = $cache->get($cacheKey);
+
         $query = [
             'grant_type' => 'refresh_token',
             'appid' => $this['app_id'],
             'secret' => $this['secret'],
-            'refresh_token' => $this['refresh_token'],
+            'refresh_token' => $token_cache['refresh_token'],
         ];
 
         $response = Http::httpPostJson(static::REFRESH_TOKEN, $query)
             ->send();
 
-        if ($response->containsKey('errcode')) {
-            throw new \Exception($response['errmsg'], $response['errcode']);
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
         }
+
+        $token = $response['data'];
+
+        $this->setTokenCache($token['access_token'], $token['refresh_token'], time() + $token['expires_in']);
 
         return $response['data'];
-    }
-
-
-    /***
-     * 获取Oauth认证所需信息
-     * @return mixed
-     * @throws \Exception
-     */
-    public function getOauthInfo()
-    {
-        $cacheId = $this->getCacheId();
-        if ($this->cache && $data = $this->cache->fetch($cacheId)) {
-            return $data;
-        }
-
-        $response = $this->refreshTokenResponse();
-
-        if ($this->cache) {
-            $this->cache->save($cacheId, $response, $response['expires_in']);
-        }
-
-        return $response;
     }
 
     /**
@@ -93,24 +160,5 @@ class AccessToken extends ArrayCollection
     public function setToken($token)
     {
         $this->access_token = $token;
-    }
-
-
-    /**
-     * 从缓存中清除.
-     */
-    public function clearFromCache()
-    {
-        return $this->cache
-            ? $this->cache->delete($this->getCacheId())
-            : false;
-    }
-
-    /**
-     * 获取缓存 ID.
-     */
-    public function getCacheId()
-    {
-        return sprintf('%s_access_token', $this['app_id']);
     }
 }

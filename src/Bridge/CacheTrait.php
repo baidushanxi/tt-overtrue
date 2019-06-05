@@ -2,7 +2,9 @@
 
 namespace Sywzj\TTOvertrue\Bridge;
 
+use Psr\SimpleCache\CacheInterface;
 use Doctrine\Common\Cache\Cache;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 
 trait CacheTrait
 {
@@ -24,6 +26,18 @@ trait CacheTrait
      */
     public function getCache()
     {
-        return $this->cache;
+        if ($this->cache) {
+            return $this->cache;
+        }
+
+        return $this->cache = $this->createDefaultCache();
+    }
+
+    /**
+     * @return \Symfony\Component\Cache\Simple\FilesystemCache
+     */
+    protected function createDefaultCache()
+    {
+        return new FilesystemCache();
     }
 }
