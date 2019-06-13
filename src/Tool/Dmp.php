@@ -61,7 +61,7 @@ class Dmp
             ],
         ];
 
-        $response = Http::httpPostJson(static::DATA_SOURCE_UPLOAD_URL, $item)
+        $response = Http::httpPost(static::DATA_SOURCE_UPLOAD_URL, $data)
             ->withAccessToken($this->access_token)
             ->send();
 
