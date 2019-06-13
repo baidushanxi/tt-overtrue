@@ -16,7 +16,7 @@ class Creative extends ArrayCollection
 {
     protected $access_token;
 
-    const GET_URL = '/2/creative/read_v2/';
+    const GET_URL = '/2/creative/get/';
     const CREATE_URL = '/2/creative/create_v2/';
     const UPDATE_URL = '/2/creative/update_v2/';
     const STATUS_URL = '/2/creative/update/status/';
@@ -83,7 +83,7 @@ class Creative extends ArrayCollection
 
         $item['fields'] =
             empty($item['fields'])
-                ? ["creative_id", "ad_id", "advertiser_id", "status", "opt_status", "image_mode", "title", "creative_word_ids", "third_party_id", "image_ids", "image_id", "video_id", "audit_reject_reason", "materials"]
+                ? ["creative_id", "ad_id", "advertiser_id", "status", "opt_status", "image_mode", "title", "creative_word_ids", "third_party_id", "image_ids", "image_id", "video_id", "audit_reject_reason",]
                 : $item['fields'];
 
         $response = Http::httpGetJson(static::GET_URL, $item)
