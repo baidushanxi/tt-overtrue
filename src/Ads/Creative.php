@@ -96,6 +96,30 @@ class Creative extends ArrayCollection
         return $response;
     }
 
+
+    /**
+     * 获取所有的创意信息
+     * @return array
+     * @throws \Exception
+     */
+    public function getAllCreative($params)
+    {
+        $data = $this->getCreative($params)->get('data');
+        $res = $data['list'];
+        if($data['page_info']['total_page'] == 1) return $res;
+        for($i = 2; $i <= $data['page_info']['total_page'];$i++) {
+            try{
+                $params['page'] = $i;
+                $data = $this->getCreative($params)->get('data');
+                $res = array_merge($res, $data['list']);
+            }catch (\Exception $e) {
+                return array_merge($res, []);
+            }
+        }
+        return $res;
+    }
+
+
     /**
      * 更新广告计划信息
      * @param $item
