@@ -60,7 +60,7 @@ class Ad extends ArrayCollection
     public function updatePlan($item)
     {
         if (empty($item['modify_time'])) {
-            $data = $this->get([
+            $data = $this->getPlan([
                 'advertiser_id' => $item['advertiser_id'],
                 'filtering' => ['ids' => [$item['ad_id']]],
                 'fields' => ["modify_time"],
