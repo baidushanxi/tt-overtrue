@@ -100,7 +100,8 @@ class Ad extends ArrayCollection
 
                 yield $report['list'];
             } catch (\Exception $e) {
-                // 什么都不做，下一页
+                // 返回异常
+                yield $e;
             }
 
             $this->set('page', ++$page);
