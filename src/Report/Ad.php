@@ -79,7 +79,33 @@ class Ad extends ArrayCollection
         return $res;
     }
 
+    /**
+     * 使用生成器的方式获取,不需要一次性获取全部，避免内存过大
+     *
+     * @param int $pageSize
+     * @return \Generator
+     */
+    public function allReportIterator($pageSize = 100) {
+        $this->set('page_size', $pageSize);
 
+        $page = $this->get('page') ?: 1;
+
+        $totalPage = 1;
+
+        do {
+            try {
+                $report = $this->report()->get('data');
+
+                $totalPage = $report['page_info']['total_page'];
+
+                yield $report['list'];
+            } catch (\Exception $e) {
+                // 什么都不做，下一页
+            }
+
+            $this->set('page', ++$page);
+        } while ($page <= $totalPage);
+    }
 
     /**
      * 获取向头条请求的参数
@@ -120,8 +146,8 @@ class Ad extends ArrayCollection
         $defaults = [
             'start_date' => date('Y-m-d'),
             'end_date' => date('Y-m-d'),
-            'page' => 1,
-            'page_size' => 100,
+            'page' => $this->get('page') ?: 1,
+            'page_size' => $this->get('page_size') ?: 100,
             'time_granularity' => $this->time_granularity ?: current($this->time_granularitys),
             'group_by' => $this->group_fields ?: [current($this->group_by)],
             'filtering' => [],
