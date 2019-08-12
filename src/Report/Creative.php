@@ -95,8 +95,8 @@ class Creative extends ArrayCollection
         $defaults = [
             'start_date' => date('Y-m-d'),
             'end_date' => date('Y-m-d'),
-            'page' => 1,
-            'page_size' => 100,
+            'page' => $this->get('page') ?: 1,
+            'page_size' => $this->get('page_size') ?: 100,
             'time_granularity' => $this->time_granularity ?: current($this->time_granularitys),
             'group_by' => $this->group_fields ?: [current($this->group_by)],
             'filtering' => [],
