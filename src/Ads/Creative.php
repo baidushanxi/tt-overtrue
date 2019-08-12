@@ -17,6 +17,7 @@ class Creative extends ArrayCollection
     protected $access_token;
 
     const GET_URL = '/2/creative/get/';
+    const GET_DETAIL_URL = '/2/creative/read_v2/';
     const CREATE_URL = '/2/creative/create_v2/';
     const UPDATE_URL = '/2/creative/update_v2/';
     const STATUS_URL = '/2/creative/update/status/';
@@ -94,6 +95,30 @@ class Creative extends ArrayCollection
             throw new ErrorException($response['message'], $response['code']);
         }
         return $response;
+    }
+
+    /**
+     * 获取单个广告创意详细信息
+     * @param $advertiserId int
+     * @param $adId int
+     * @return \Doctrine\Common\Collections\ArrayCollection|string
+     * @throws \Exception
+     */
+    public function getCreativeDetail($advertiserId, $adId)
+    {
+        $item = [
+            'advertiser_id' => $advertiserId,
+            'ad_id' => $adId,
+        ];
+
+        $response = Http::httpGetJson(static::GET_DETAIL_URL, $item)
+            ->withAccessToken($this->access_token)
+            ->send();
+
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+        return $response->get('data');
     }
 
 
