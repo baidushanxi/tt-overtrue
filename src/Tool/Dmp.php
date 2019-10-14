@@ -11,7 +11,9 @@ namespace Sywzj\TTOvertrue\Tool;
 use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 use Sywzj\TTOvertrue\Bridge\Http;
-class Dmp
+use Doctrine\Common\Collections\ArrayCollection;
+
+class Dmp extends ArrayCollection
 {
     protected $access_token;
 
@@ -20,7 +22,8 @@ class Dmp
     const CUSTOM_AUDIENCE_PUSH_URL = "/2/dmp/custom_audience/push_v2/";// 推送人群包
     const CUSTOM_AUDIENCE_PUBLISH_URL = "/2/dmp/custom_audience/publish/";//推送人群包
 
-
+    const CUSTOM_AUDIENCE_SELECT_URL = "/2/dmp/custom_audience/select/"; // 查询人群包列表
+    const CUSTOM_AUDIENCE_READ_URL = "/2/dmp/custom_audience/read/";     // 人群包详细信息
 
     /**
      * 构造方法.
@@ -70,6 +73,98 @@ class Dmp
         }
 
         return $response;
+    }
+
+
+    public function audienceRead($item)
+    {
+        $response = Http::httpGetJson(static::CUSTOM_AUDIENCE_READ_URL, array_merge([
+            'data_format' => 0,
+            'file_storage_type' => 0,
+        ], $item))
+            ->withAccessToken($this->access_token)
+            ->send();
+
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+
+        return $response;
+    }
+
+
+    public function audienceSelect($item)
+    {
+        $totalPage = 0;
+        do {
+            try {
+                $offset = $this->get('offset') ?: 1;
+
+                $response = Http::httpGetJson(static::CUSTOM_AUDIENCE_SELECT_URL, array_merge($item, [
+                    'offset' => $offset,
+                    'limit' => 100,
+                ]))
+                    ->withAccessToken($this->access_token)
+                    ->send();
+
+                if(empty($response['data'])) {
+                    $totalPage = 0;
+                    continue;
+                }
+
+                $totalPage = ceil($response['data']['total_num'] / 100);
+
+                yield $response['data']['custom_audience_list'];
+            } catch (\Exception $e) {
+                \Log::info($e->getMessage() . '|'.  $e->getLine());
+                // 返回异常
+                yield $e;
+            }
+
+            $this->set('offset', ++$offset);
+        } while ($offset <= $totalPage);
+    }
+
+
+    /**
+     * 推送人群包
+     * @param $item
+     * @return ArrayCollection|string
+     * @throws ErrorException
+     */
+    public function pushAudience($item)
+    {
+        $response = Http::httpPostJson(static::CUSTOM_AUDIENCE_PUSH_URL, $item)
+            ->withAccessToken($this->access_token)
+            ->send();
+
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+
+        return $response;
+
+    }
+
+
+    /**
+     * 推送人群包
+     * @param $item
+     * @return ArrayCollection|string
+     * @throws ErrorException
+     */
+    public function publishAudience($item)
+    {
+        $response = Http::httpPostJson(static::CUSTOM_AUDIENCE_PUBLISH_URL, $item)
+            ->withAccessToken($this->access_token)
+            ->send();
+
+        if (0 != $response['code']) {
+            throw new ErrorException($response['message'], $response['code']);
+        }
+
+        return $response;
+
     }
 
 
