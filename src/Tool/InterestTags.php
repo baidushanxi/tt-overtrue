@@ -3,10 +3,9 @@
 namespace Sywzj\TTOvertrue\Tool;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 use Sywzj\TTOvertrue\Bridge\Http;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Sywzj\TTOvertrue\AccessToken\AccessToken;
 
 /**
  * Class InterestTags
@@ -42,21 +41,20 @@ class InterestTags extends ArrayCollection
         }
 
         $param = [
-            "json" => [
-                'advertiser_id' => $advertiser_id,
-                'words' => $words
-            ]
+            'advertiser_id' => $advertiser_id,
+            'words' => $words
         ];
 
         $response = Http::httpGetJson(static::WORD_TO_ID_URL, $param)
             ->withAccessToken($this->access_token)
             ->send();
 
+
         if (0 != $response['code']) {
             throw new ErrorException($response['message'], $response['code']);
         }
 
-        return $response;
+        return $response['data']['word_ids'];
     }
 
 
@@ -69,7 +67,7 @@ class InterestTags extends ArrayCollection
     public function get($advertiser_id)
     {
         $param = [
-            'advertiser_id'=>$advertiser_id
+            'advertiser_id' => $advertiser_id
         ];
 
         $response = Http::httpGetJson(static::GET_URL, $param)
@@ -79,7 +77,7 @@ class InterestTags extends ArrayCollection
         if (0 != $response['code']) {
             throw new ErrorException($response['message'], $response['code']);
         }
-        return $response;
+        return $response['data']['list'];
     }
 
 
