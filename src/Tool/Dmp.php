@@ -96,23 +96,24 @@ class Dmp extends ArrayCollection
     public function audienceSelect($item)
     {
         $totalPage = 0;
+        $limit = 100;
         do {
             try {
-                $offset = $this->get('offset') ?: 1;
+                $offset = $this->get('offset') ?: 0;
 
                 $response = Http::httpGetJson(static::CUSTOM_AUDIENCE_SELECT_URL, array_merge($item, [
                     'offset' => $offset,
-                    'limit' => 100,
+                    'limit' => $limit,
                 ]))
                     ->withAccessToken($this->access_token)
                     ->send();
 
                 if(empty($response['data'])) {
-                    $totalPage = 0;
+                    $total = 0;
                     continue;
                 }
 
-                $totalPage = ceil($response['data']['total_num'] / 100);
+                $total = $response['data']['total_num'];
 
                 yield $response['data']['custom_audience_list'];
             } catch (\Exception $e) {
@@ -120,9 +121,8 @@ class Dmp extends ArrayCollection
                 // 返回异常
                 yield $e;
             }
-
-            $this->set('offset', ++$offset);
-        } while ($offset <= $totalPage);
+            $this->set('offset', $offset + $limit);
+        } while ($this->get('offset') < $total);
     }
 
 
