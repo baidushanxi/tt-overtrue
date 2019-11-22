@@ -11,7 +11,7 @@ class Http
     /**
      * Request Url.
      */
-    protected $uri = "https://ad.toutiao.com/open_api";
+    protected $uri = "https://ad.oceanengine.com/open_api";
 
 //    protected $uri = "https://test-ad.toutiao.com/open_api";
 
