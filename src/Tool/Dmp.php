@@ -120,7 +120,7 @@ class Dmp extends ArrayCollection
                 // 返回异常
                 yield $e;
             }
-            $this->set('offset', $offset + $limit);
+            $offset += $limit;
         } while ($this->get('offset') < $total);
     }
 
