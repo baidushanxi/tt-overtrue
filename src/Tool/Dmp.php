@@ -109,8 +109,7 @@ class Dmp extends ArrayCollection
                     ->send();
 
                 if(empty($response['data'])) {
-                    $total = 0;
-                    continue;
+                    break;
                 }
 
                 $total = $response['data']['total_num'];
