@@ -108,7 +108,7 @@ class Dmp extends ArrayCollection
                     ->withAccessToken($this->access_token)
                     ->send();
 
-                if(empty($response['data'])) {
+                if(empty($response['data']['custom_audience_list'])) {
                     break;
                 }
 
@@ -120,7 +120,7 @@ class Dmp extends ArrayCollection
                 yield $e;
             }
             $offset += $limit;
-        } while ($this->get('offset') < $total);
+        } while ($offset < $total);
     }
 
 
