@@ -95,11 +95,11 @@ class Dmp extends ArrayCollection
 
     public function audienceSelect($item)
     {
-        $totalPage = 0;
+        $total = 0;
+        $offset = $this->get('offset') ?: 0;
         $limit = 100;
         do {
             try {
-                $offset = $this->get('offset') ?: 0;
 
                 $response = Http::httpGetJson(static::CUSTOM_AUDIENCE_SELECT_URL, array_merge($item, [
                     'offset' => $offset,
@@ -117,7 +117,6 @@ class Dmp extends ArrayCollection
 
                 yield $response['data']['custom_audience_list'];
             } catch (\Exception $e) {
-                \Log::info($e->getMessage() . '|'.  $e->getLine());
                 // 返回异常
                 yield $e;
             }
