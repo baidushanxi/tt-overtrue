@@ -7,7 +7,6 @@ use Sywzj\TTOvertrue\Bridge\Http;
 
 class AdLabGroup
 {
-
     const CREATE_URL = '/2/adlab/group/create/';
     const GET_URL = '/2/adlab/group/get/';
     const CONVERT_URL = '/2/adlab/group_convert/update/';
@@ -33,7 +32,6 @@ class AdLabGroup
     const STATUS_DELETED = 'DELETED';
     const STATUS_DISABLED = 'DISABLED';
     const STATUS_ENABLED = 'ENABLED';
-
 
     const SCENARIO_COMMON = 'COMMON';
     const SCENARIO_GAME = 'GAME';
@@ -335,7 +333,7 @@ class AdLabGroup
         if (0 != $response['code']) {
             throw new ErrorException($response['message'], $response['code']);
         }
-        return $response['data.ad_id'];
+        return $response['data']['ad_id'];
     }
 
     /**
