@@ -3,10 +3,9 @@
 namespace Sywzj\TTOvertrue\Ads;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Sywzj\TTOvertrue\AccessToken\AccessToken;
 use Sywzj\TTOvertrue\Bridge\ErrorException;
 use Sywzj\TTOvertrue\Bridge\Http;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Sywzj\TTOvertrue\AccessToken\AccessToken;
 
 /**
  * Class Ad
@@ -124,20 +123,18 @@ class Ad extends ArrayCollection
     {
         $data = $this->getPlan($params)->get('data');
         $res = $data['list'];
-        if($data['page_info']['total_page'] == 1) return $res;
-        for($i = 2; $i <= $data['page_info']['total_page'];$i++) {
-            try{
+        if ($data['page_info']['total_page'] == 1) return $res;
+        for ($i = 2; $i <= $data['page_info']['total_page']; $i++) {
+            try {
                 $params['page'] = $i;
                 $data = $this->getPlan($params)->get('data');
                 $res = array_merge($res, $data['list']);
-            }catch (\Exception $e) {
+            } catch (\Exception $e) {
                 return array_merge($res, []);
             }
         }
         return $res;
     }
-
-
 
 
     /**
