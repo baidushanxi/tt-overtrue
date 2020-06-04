@@ -129,6 +129,7 @@ class Comment extends ArrayCollection
             'operate_type' => 'REPLY',
             'comment_ids' => array_wrap($comment_ids),
             'reply_text' => $replay_text,
+            'advertiser_id' => $advertiser_id,
         ]);
     }
 
@@ -148,6 +149,7 @@ class Comment extends ArrayCollection
             'comment_ids' => array_slice(array_wrap($comment_ids)),
             'reply_text' => $replay_text,
             'reply_id' => $reply_id,
+            'advertiser_id' => $advertiser_id,
         ]);
     }
 
