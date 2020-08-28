@@ -53,7 +53,7 @@ class Fund extends ArrayCollection
      */
     public function dailyStat($item = [])
     {
-        $response = Http::httpPostJson(static::DAILY_STAT_URL, $item)
+        $response = Http::httpGetJson(static::DAILY_STAT_URL, $item)
             ->withAccessToken($this->access_token)
             ->send();
 
@@ -71,7 +71,7 @@ class Fund extends ArrayCollection
      */
     public function transaction($item = [])
     {
-        $response = Http::httpPostJson(static::TRANSACTION_URL, $item)
+        $response = Http::httpGetJson(static::TRANSACTION_URL, $item)
             ->withAccessToken($this->access_token)
             ->send();
 
